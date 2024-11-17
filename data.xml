@@ -1,12 +1,13 @@
-<data>
-  <row>
-    <name>Alice</name>
-    <age>25</age>
-    <city>New York</city>
-  </row>
-  <row>
-    <name>Bob</name>
-    <age>30</age>
-    <city>Los Angeles</city>
-  </row>
-  </data>
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+    <record>
+        <id>1</id>
+        <name>John Doe</name>
+        <email>john.doe@example.com</email>
+    </record>
+    <record>
+        <id>2</id>
+        <name>Jane Smith</name>
+        <email>jane.smith@example.com</email>
+    </record>
+</records>
