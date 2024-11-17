@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XML Database with Actions</title>
+    <title>XML Data Table with Actions</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        input {
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>XML Data Table with Edit, Update, and Delete Actions</h1>
+
+    <div id="dataTable"></div>
+
     <script>
-        // Sample XML data (in real case, this would be fetched from a server)
+        // Sample XML Data (In a real scenario, this might come from an XML file or database)
         const xmlData = `
         <records>
             <record>
@@ -26,20 +47,19 @@
             const xmlDoc = parser.parseFromString(xmlData, "application/xml");
             const records = xmlDoc.getElementsByTagName("record");
 
-            let tableHtml = "<table border='1'><tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr>";
+            let tableHtml = "<table><tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr>";
             for (let i = 0; i < records.length; i++) {
                 const id = records[i].getElementsByTagName("id")[0].textContent;
                 const name = records[i].getElementsByTagName("name")[0].textContent;
                 const email = records[i].getElementsByTagName("email")[0].textContent;
 
                 tableHtml += `
-                <tr>
-                    <td>${id}</td>
-                    <td>${name}</td>
-                    <td>${email}</td>
+                <tr id="row-${id}">
+                    <td id="id-${id}">${id}</td>
+                    <td id="name-${id}">${name}</td>
+                    <td id="email-${id}">${email}</td>
                     <td>
                         <a href="javascript:void(0);" onclick="editRecord(${id})">Edit</a> |
-                        <a href="javascript:void(0);" onclick="updateRecord(${id})">Update</a> |
                         <a href="javascript:void(0);" onclick="deleteRecord(${id})">Delete</a>
                     </td>
                 </tr>`;
@@ -48,19 +68,62 @@
             document.getElementById("dataTable").innerHTML = tableHtml;
         }
 
-        // Edit record functionality (for demonstration purposes, just alerts)
+        // Edit record: Shows input fields to modify the data
         function editRecord(id) {
-            alert("Editing record with ID: " + id);
+            const nameCell = document.getElementById(`name-${id}`);
+            const emailCell = document.getElementById(`email-${id}`);
+
+            const name = nameCell.textContent;
+            const email = emailCell.textContent;
+
+            // Replace the name and email cells with input fields for editing
+            nameCell.innerHTML = `<input type="text" id="edit-name-${id}" value="${name}">`;
+            emailCell.innerHTML = `<input type="text" id="edit-email-${id}" value="${email}">`;
+
+            // Change the Edit link to an Update link
+            const actionCell = document.querySelector(`#row-${id} td:last-child`);
+            actionCell.innerHTML = `<a href="javascript:void(0);" onclick="updateRecord(${id})">Update</a> | 
+                                    <a href="javascript:void(0);" onclick="deleteRecord(${id})">Delete</a>`;
         }
 
-        // Update record functionality (for demonstration purposes, just alerts)
+        // Update record: Save the edited data
         function updateRecord(id) {
-            alert("Updating record with ID: " + id);
+            const newName = document.getElementById(`edit-name-${id}`).value;
+            const newEmail = document.getElementById(`edit-email-${id}`).value;
+
+            // Update the XML data (in this case, modify the DOM)
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlData, "application/xml");
+            const record = xmlDoc.querySelector(`record > id:contains(${id})`).parentElement;
+
+            record.querySelector('name').textContent = newName;
+            record.querySelector('email').textContent = newEmail;
+
+            // Update the table with the new data
+            document.getElementById(`name-${id}`).textContent = newName;
+            document.getElementById(`email-${id}`).textContent = newEmail;
+
+            // Reset the action links back to "Edit"
+            const actionCell = document.querySelector(`#row-${id} td:last-child`);
+            actionCell.innerHTML = `<a href="javascript:void(0);" onclick="editRecord(${id})">Edit</a> |
+                                    <a href="javascript:void(0);" onclick="deleteRecord(${id})">Delete</a>`;
         }
 
-        // Delete record functionality (for demonstration purposes, just alerts)
+        // Delete record: Remove the row from the table
         function deleteRecord(id) {
-            alert("Deleting record with ID: " + id);
+            if (confirm(`Are you sure you want to delete record with ID: ${id}?`)) {
+                const row = document.getElementById(`row-${id}`);
+                row.remove();
+                
+                // Also update the XML data by removing the corresponding record (In real-world scenario, send an API request)
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlData, "application/xml");
+                const record = xmlDoc.querySelector(`record > id:contains(${id})`).parentElement;
+                record.remove();
+                
+                // Update the XML string (For real use, you'd need a backend service to persist changes)
+                xmlData = new XMLSerializer().serializeToString(xmlDoc);
+            }
         }
 
         // Initialize table on page load
@@ -68,9 +131,6 @@
             displayTable();
         };
     </script>
-</head>
-<body>
-    <h1>XML Data Table with Actions</h1>
-    <div id="dataTable"></div>
+
 </body>
 </html>
