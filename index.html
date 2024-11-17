@@ -1,21 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Editable Table</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Database with Actions</title>
+    <script>
+        // Sample XML data (in real case, this would be fetched from a server)
+        const xmlData = `
+        <records>
+            <record>
+                <id>1</id>
+                <name>John Doe</name>
+                <email>john.doe@example.com</email>
+            </record>
+            <record>
+                <id>2</id>
+                <name>Jane Smith</name>
+                <email>jane.smith@example.com</email>
+            </record>
+        </records>`;
+
+        // Function to parse XML and display it in a table
+        function displayTable() {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlData, "application/xml");
+            const records = xmlDoc.getElementsByTagName("record");
+
+            let tableHtml = "<table border='1'><tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr>";
+            for (let i = 0; i < records.length; i++) {
+                const id = records[i].getElementsByTagName("id")[0].textContent;
+                const name = records[i].getElementsByTagName("name")[0].textContent;
+                const email = records[i].getElementsByTagName("email")[0].textContent;
+
+                tableHtml += `
+                <tr>
+                    <td>${id}</td>
+                    <td>${name}</td>
+                    <td>${email}</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="editRecord(${id})">Edit</a> |
+                        <a href="javascript:void(0);" onclick="updateRecord(${id})">Update</a> |
+                        <a href="javascript:void(0);" onclick="deleteRecord(${id})">Delete</a>
+                    </td>
+                </tr>`;
+            }
+            tableHtml += "</table>";
+            document.getElementById("dataTable").innerHTML = tableHtml;
+        }
+
+        // Edit record functionality (for demonstration purposes, just alerts)
+        function editRecord(id) {
+            alert("Editing record with ID: " + id);
+        }
+
+        // Update record functionality (for demonstration purposes, just alerts)
+        function updateRecord(id) {
+            alert("Updating record with ID: " + id);
+        }
+
+        // Delete record functionality (for demonstration purposes, just alerts)
+        function deleteRecord(id) {
+            alert("Deleting record with ID: " + id);
+        }
+
+        // Initialize table on page load
+        window.onload = function() {
+            displayTable();
+        };
+    </script>
 </head>
 <body>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>City</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody">
-      </tbody>
-  </table>
-  <script src="script.js"></script>
+    <h1>XML Data Table with Actions</h1>
+    <div id="dataTable"></div>
 </body>
 </html>
